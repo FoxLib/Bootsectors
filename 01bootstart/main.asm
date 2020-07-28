@@ -11,7 +11,7 @@
         mov     ss, ax
         mov     sp, $8000
 
-; Вход в нереальный режим без CS
+; Вход в нереальный режим без CS: https://wiki.osdev.org/Unreal_Mode
 ; ----------------------------------------------------------------------
         push    ds es               ; save real mode
         lgdt    [gdtidx]            ; load gdt register
@@ -28,13 +28,14 @@
 gdtidx: dw      gdtend - gdt - 1    ; last byte in table
         dd      gdt                 ; start of table
 gdt     dd      0, 0                ; entry 0 is always unused
-        db      0xFF, 0xFF, 0, 0, 0, 10010010b, 11001111b, 0
+        db      0xFF, 0xFF, 0x00, 0x00, 0x00, 0x92, 0xCF, 0x00
 gdtend: pop     es ds               ; get back old segment
 ; ----------------------------------------------------------------------
 
-        mov     bx,     0x0f01
+        sti
+        mov     bx,     0x0f02
         mov     eax,    0x0b8000
-        mov     word    [es:eax], bx
+        mov     word    [es: eax], bx
         jmp     $
 
 
