@@ -1,4 +1,5 @@
 all: disk boot.bin main.bin
+	rm -f *.lock
 	bochs -f c.bxrc -q > /dev/null 2>&1
 disk:
 	dd if=/dev/zero of=disk.img count=524288
