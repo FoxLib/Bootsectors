@@ -10,7 +10,7 @@
         mov     es, ax
         mov     ss, ax
         mov     sp, $8000
-
+; ----------------------------------------------------------------------
 ; Вход в нереальный режим без CS: https://wiki.osdev.org/Unreal_Mode
 ; ----------------------------------------------------------------------
         push    ds es               ; save real mode
@@ -31,7 +31,6 @@ gdt     dd      0, 0                ; entry 0 is always unused
         db      0xFF, 0xFF, 0x00, 0x00, 0x00, 0x92, 0xCF, 0x00
 gdtend: pop     es ds               ; get back old segment
 ; ----------------------------------------------------------------------
-
         sti
         mov     bx,     0x0f02
         mov     eax,    0x0b8000
