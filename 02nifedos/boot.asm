@@ -1,89 +1,89 @@
-; ----------------------------------------------------------------------
-; Загружается файл LOADER.BIN (не более 608 кб)
-; ----------------------------------------------------------------------
-
 
         macro   brk { xchg bx, bx }
         org     7c00h
 
-        ; 3 байтный переход
         jmp     near start
 
 ; ----------------------------------------------------------------------
-
-        db      'FLOPPY12'      ; 03 Имя
-        dw      200h            ; 0B Байт в секторе (512)
-        db      1               ; 0D Секторов на кластер
-        dw      1               ; 0E Количество резервированных секторов перед началом FAT (1 - бутсектор)
-        db      2               ; 10 Количество FAT
-        dw      00E0h           ; 11 Количество записей в ROOT Entries (224 x 32 = 1C00h байт), 14 секторов
-        dw      0B40h           ; 13 Всего логических секторов (2880)
-        db      0F0h            ; 15 Дескриптор медиа (F0h - флоппи-диск)
-        dw      9h              ; 16 Секторов на FAT
-        dw      12h             ; 18 Секторов на трек
-        dw      2h              ; 1A Количество головок
-        dd      0               ; 1C Скрытых секторов (large)
-        dd      0               ; 20 Всего секторов (large)
-        db      0               ; 24 Номер физического устройства
-        db      1               ; 25 Флаги
-        db      29h             ; 26 Расширенная сигнатура загрузчика
-        dd      07E00000h       ; 27 Serial Number, но на самом деле ES:BX
-        db      'CORE    BIN'   ; 2B Метка тома (совпадает с названием запускного файла)
-        db      'FAT12   '      ; 36 Тип файловой системы
-
+; BPB: Bios Parameter Block
 ; ----------------------------------------------------------------------
-; Процедура поиск файла в RootEntries (224 файла, 14 секторов)
+        db      "FLOPPY12"          ; 03 Signature
+        dw      200h                ; 0B Bytes in sector
+        db      1                   ; 0D Sectors by cluster
+        dw      1                   ; 0E Count reserver sectors
+        db      2                   ; 10 Count of FAT
+        dw      00E0h               ; 11 Count of Root Entries (224)
+        dw      0B40h               ; 13 Total count of sectors
+        db      0F0h                ; 15 Media
+        dw      9                   ; 16 Sectors in FAT
+        dw      12h                 ; 18 Sectors on track
+        dw      2                   ; 1A Count of heads
+        dd      0                   ; 1C Hidden Sectors (large)
+        dd      0                   ; 20 Total Sectors
+        db      0                   ; 24 Number of Phys.
+        db      1                   ; 25 Flags
+        db      29h                 ; 26 Ext Sig
+        dd      07E00000h           ; 27 Serial Numbers ES:BX
+        db      'CORE    BIN'       ; 2B Label / Exec File
+        db      'FAT12    '         ; 36 Type of FS
+; ----------------------------------------------------------------------
 
-start:  cli
+start:
+
+        cli
         cld
-        mov     sp, 7C00h
-        mov     ax, 19          ; 19-й сектор - начало RootEntries
-dir:    les     bx, [7C27h]     ; ES:BX = 7E0h : 0h
+        mov     sp, 7c00h
+        mov     ax, 19
+dir:    les     bx, [7c27h]
         call    ReadSector
         mov     di, bx
-        mov     bp, 16          ; 16 элементов в сектое
-item:   mov     si, 7C2Bh       ; ds:si метка тома "loader.bin"
-        mov     cx, 12
+        mov     bp, 16
+item:   mov     si, 7c2bh       ; ds:si - label filename
+        mov     cx, 12          ; 11 + 1
         push    di
-        repe    cmpsb
+        repe    cmpsb           ; compare string
         pop     di
         jcxz    file_found
         add     di, 32
         dec     bp
         jne     item
-        inc     ax               ; К следующему сектору
-        sub     word [7C11h], 16 ; Всего 14 секторов в Root (16 x 14 = 224)
+        inc     ax
+        sub     word [7c11h], 16
         jne     dir
-        int     18h              ; Выдать сообщение, что нет загрузочных дисков
+        int     18h
 
 ; ----------------------------------------------------------------------
-; Первый кластер начинается с сектора 33 (сектора начинаются с 0)
+; Loading file from FS
+; ----------------------------------------------------------------------
 
 file_found:
 
-        mov     ax, [es: di + 1Ah]  ; Найти первый кластер
-        mov     [7C22h], word 800h
-next:   push    ax                  ; Прочесть очередной кластер (1 сектор)
-        add     ax, 31              ; 33 - 2
-        les     bx, [7C20h]         ; Заполнять c 0800h : 0000h
+        mov     ax, [es: di + 1Ah]
+        mov     [7c22h], word 800h      ; address of write program
+
+next:   push    ax
+        add     ax, 31
+        les     bx, [7c20h]
         call    ReadSector
-        add     [7C22h], word 20h   ; + 512
+        add     [7c22h], word 20h
         pop     ax
-        mov     bx, 3               ; Каждый элемент занимает 12 бит (3/2 байта)
+
+        mov     bx, 3
         mul     bx
         push    ax
-        shr     ax, 1 + 9           ; cluster*3/2 -> номер байта / 512 -> номер сектора
-        inc     ax                  ; FAT начинается с сектора 1 (второй сектор)
+        shr     ax, 1 + 9
+        inc     ax              ; +1 bpb
         mov     si, ax
-        les     bx, [7C27h]         ; ES:BX = 07E0h : 0000h
+        les     bx, [7c27h]     ; es:bx=07e0:0000
         call    ReadSector
         pop     ax
+
         mov     bp, ax
-        mov     di, ax              ; Отыскать указатель на следующий кластер
+        mov     di, ax
         shr     di, 1
         and     di, 0x1FF
-        mov     ax, [es: di]
-        cmp     di, 0x1FF           ; Случай, когда требуется 4/8 бит из следующего сектора
+        mov     ax, [es: di]    ; 07e0
+        cmp     di, 0x1FF
         jne     @f
         push    ax
         xchg    ax, si
@@ -91,48 +91,84 @@ next:   push    ax                  ; Прочесть очередной кла
         call    ReadSector
         pop     ax
         mov     ah, [es: bx]
-@@:     test    bp, 1               ; Сдвинуто на 4 бита?
+@@:     test    bp, 1
         jz      @f
-        shr     ax, 4               ; Выровнять из старшего байта >> 4
-@@:     and     ax, 0x0FFF          ; Срезать лишние биты
+        shr     ax, 4
+@@:     and     ax, 0x0FFF          ; 12
         cmp     ax, 0x0FF0
         jb      next
-        mov     ax, 800h
-        mov     ds, ax
-        mov     es, ax
-        mov     ss, ax
-        jmp     0800h : 0000h       ; Конец данных
 
 ; ----------------------------------------------------------------------
-; Загрузка сектора AX в ES:BX (32 байта)
+; Init protected
+; ----------------------------------------------------------------------
+brk
+        mov     ax, 0012h           ; text 80x25; vga 640x480
+        int     10h
+
+        lgdt    [GDTR]
+        lidt    [IDTR]
+
+        mov     eax, cr0
+        or      al, 1
+        mov     cr0, eax
+        jmp     10h : pm
+
+; ----------------------------------------------------------------------
+; AX - number of sector, ES:BX pointer to data place
 ; ----------------------------------------------------------------------
 
 ReadSector:
 
         push    ax
-        mov     cx, 12h     ; 12h (секторов на треке)
+        mov     cx, 12h
         cwd
-        div     cx          ; ax - номер трека, dl - номер сектора
+        div     cx
         xchg    ax, cx
         mov     dh, cl
-        and     dh, 1       ; Дорожка (Disk Head) = 0..1, TrackNum % 2
+        and     dh, 1
         shr     cx, 1
-        xchg    ch, cl      ; CH-младший, CL[7:6] - старшие 2 бита
-        shl     cl, 6
+        xchg    ch, cl
+        shr     cl, 6
         inc     dx
-        or      cl, dl      ; Номер сектора
-        mov     dl, 0       ; disk a:/
+        or      cl, dl
+        mov     dl, 0
         mov     ax, 0201h
-        int     13h
+        int     13h             ; es:bx, cx/dx
         pop     ax
         ret
 
 ; ----------------------------------------------------------------------
-; ОСТАТОК МЕСТА ЗАПОЛНИТЬ ЗАГЛУШКОЙ
+; GDT/IDT Descriptors
 ; ----------------------------------------------------------------------
 
-        ; Заполнить FFh
-        times 7c00h + (512 - 2) - $ db 255
+GDTR:   dw      3*8-1
+        dd      GDT
+IDTR:   dw      256*8-1
+        dd      0
+GDT:    dw      0,      0,      0,      0
+        dw      0FFFFh, 0,  9200h,  00CFh       ; 32bit data
+        dw      0FFFFh, 0,  9A00h,  00CFh       ; 32bit code
 
-        ; Сигнатура
-        dw 0xAA55
+; ----------------------------------------------------------------------
+; Protected mode
+; ----------------------------------------------------------------------
+
+        use32
+
+pm:     mov     ax, 08h
+        mov     ds, ax
+        mov     es, ax
+        mov     ss, ax
+        mov     fs, ax
+        mov     gs, ax
+        mov     esp, 8000h
+        jmp     8000h
+
+; ----------------------------------------------------------------------
+; ESTIMATED FILL ZERO
+; ----------------------------------------------------------------------
+
+        times   7c00h + (512 - 2) - $ db 0x00
+        dw      0xAA55
+
+
