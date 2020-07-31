@@ -1,13 +1,11 @@
 WHO=$(shell whoami)
-all: boot.bin core.bin
+all: boot.bin
 	rm -f *.lock
 	cd src && make
 	bochs -f a.bxrc -q > /dev/null 2>&1
 boot.bin: boot.asm floppy.img
 	fasm boot.asm
 	dd conv=notrunc if=boot.bin of=floppy.img bs=512 count=1
-core.bin: core.asm
-	fasm core.asm
 floppy.img:
 	dd if=/dev/zero of=floppy.img bs=1024 count=1440
 mkfs: floppy.img
