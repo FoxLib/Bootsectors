@@ -8,16 +8,10 @@ nasm.o: main.asm
 	nasm -felf32 -o nasm.o main.asm
 main.o: main.h ata.h pic.h main.c
 	$(CC) $(COPT) -c main.c -o main.o
-pic.o: io.h pic.h pic.c main.asm
+pic.o: pic.c io.h pic.h main.asm
 	$(CC) $(COPT) -c pic.c -o pic.o
-ata.o: io.h ata.h ata.c
-	$(CC) $(COPT) -c ata.c -o ata.o
-vga.o: io.h vga.h vga.c
-	$(CC) $(COPT) -c vga.c -o vga.o
-fdc.o: io.h fdc.h fdc.c
-	$(CC) $(COPT) -c fdc.c -o fdc.o
-ps2mouse.o: io.h ps2mouse.h ps2mouse.c
-	$(CC) $(COPT) -c ps2mouse.c -o ps2mouse.o
+%.o: %.c %.h io.h
+	$(CC) $(COPT) -c $< -o $@
 clean:
-	rm -f *.o *.ini boot.bin
+	rm -f *.o *.ini
 
