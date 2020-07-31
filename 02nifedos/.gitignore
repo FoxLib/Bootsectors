@@ -1,5 +1,5 @@
 *.bin
 *.ini
-fasm.exe
-disk.img
+*.img
 /disk
+/fdd
