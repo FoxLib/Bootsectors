@@ -2,8 +2,13 @@
 #include "vga.h"
 #include "tahoma.h"
 
-uint16_t rgb(int r, int g, int b) {
-    return ((r>>3)<<11) | ((g>>2)<<5) | (b>>3);
+// 5:6:5
+uint16_t rgb(int r, int g, int b) { return ((r>>3)<<11) | ((g>>2)<<5) | (b>>3); }
+uint16_t C(uint32_t cl) {
+    return
+        (((cl & 0xFF0000) >> 19) << 11) |
+        (((cl & 0xFF00) >> 10) << 5) |
+        (( cl & 0xFF) >> 3);
 }
 
 // Нарисовать пиксель на экране [R5:G6:B5]

@@ -4,20 +4,24 @@
 #include "pic.h"
 #include "ps2mouse.h"
 #include "vga.h"
+#include "main.h"
 
 void main() {
 
-    irq_init(IRQ_KEYB | IRQ_FDC | IRQ_CASCADE | IRQ_PS2MOUSE);
-    init_ata_devices();
-    fdc_init();
-    ps2_init_mouse();
+    startup();
 
-    block(0, 0, 1123, 767, rgb(0,128,128));
+    block(0, 0, 1123, 767, CL_CYAN);
 
-    ttf_print(8,8,"Hello World!", CL_WHITE);
-
-    sti;
+    int xp = -1, yp = -1;
     for(;;) {
-        pset(ps2.x, ps2.y, CL_WHITE);
+
+        cli; // -- обязательно
+        if (ps2.x != xp || ps2.y != yp) {
+
+            line(xp, yp, ps2.x, ps2.y, CL_WHITE);
+            xp = ps2.x;
+            yp = ps2.y;
+        }
+        sti;
     }
 }
