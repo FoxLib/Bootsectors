@@ -211,7 +211,7 @@ void fdc_prepare(int lba) {
     while (fdc.irq_ready == 0);
 }
 
-/** Чтение сектора в $1000 -> IRQ #6 */
+/** Чтение сектора [0..N] в $1000 -> IRQ #6 */
 void fdc_read(int lba) {
 
     fdc_prepare(lba); // Подготовка
@@ -219,7 +219,7 @@ void fdc_read(int lba) {
     fdc_rw(0, fdc.r_head, fdc.r_cyl, fdc.r_sec); // Читать
 }
 
-/** Запись сектора из $1000 -> IRQ #6 */
+/** Запись сектора [0..N] из $1000 -> IRQ #6 */
 void fdc_write(int lba) {
 
     fdc_prepare(lba); // Подготовка

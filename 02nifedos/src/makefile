@@ -1,6 +1,6 @@
 CC=clang
 COPT=-Os -ffreestanding -fno-pie -nostdlib -m32 -mno-sse
-DEPS=nasm.o fdc.o ata.o ps2mouse.o vga.o pic.o main.o
+DEPS=nasm.o fdc.o ata.o ps2mouse.o vga.o pic.o stdio.o main.o
 
 all: $(DEPS)
 	ld -m elf_i386 -nostdlib -nodefaultlibs --oformat binary -Ttext=0x8000 -Tdata=0x100000 $(DEPS) -o ../disk/core.bin

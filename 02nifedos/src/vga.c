@@ -2,8 +2,17 @@
 #include "vga.h"
 #include "tahoma.h"
 
+// Инициализировать значениями
+void vg_init() {
+
+    locate(0, 0);
+    color(CL_WHITE, -1);
+}
+
 // 5:6:5
 uint16_t rgb(int r, int g, int b) { return ((r>>3)<<11) | ((g>>2)<<5) | (b>>3); }
+
+// Конвертация 24 -> 16
 uint16_t C(uint32_t cl) {
     return
         (((cl & 0xFF0000) >> 19) << 11) |
@@ -35,8 +44,7 @@ void block(int x1, int y1, int x2, int y2, uint16_t cl) {
         pset(j, i, cl);
 }
 
-/*
- * Рисование линии по алгоритму Брезенхема
+/** Рисование линии по алгоритму Брезенхема
  * https://ru.wikipedia.org/wiki/Алгоритм_Брезенхэма
  */
 void line(int x1, int y1, int x2, int y2, uint16_t color) {
@@ -73,7 +81,16 @@ void line(int x1, int y1, int x2, int y2, uint16_t color) {
     }
 }
 
-/* Рисование окружности */
+// Рисование контура
+void lineb(int x1, int y1, int x2, int y2, uint16_t color) {
+
+    block(x1, y1, x2, y1, color);
+    block(x1, y1, x1, y2, color);
+    block(x2, y1, x2, y2, color);
+    block(x1, y2, x2, y2, color);
+}
+
+/** Рисование окружности */
 void circle(int xc, int yc, int radius, uint16_t color) {
 
     int x = 0,
@@ -132,7 +149,7 @@ void circle_fill(int xc, int yc, int radius, uint16_t color) {
 }
 
 // Пропечатка шрифта, возвращается размер пропечатанной строки
-int ttf_printc(int x, int y, uint8_t chr, uint16_t color) {
+int ttf_print_char(int x, int y, uint8_t chr, uint16_t color) {
 
     int i, j;
 
@@ -167,7 +184,7 @@ int ttf_print(int x, int y, char* s, uint16_t color) {
 
     while (*s) {
 
-        x += ttf_printc(x, y, *s, color);
+        x += ttf_print_char(x, y, *s, color);
         s++;
     }
 
@@ -176,16 +193,48 @@ int ttf_print(int x, int y, char* s, uint16_t color) {
 
 // Печать строки BOLD
 // @return последняя позиция
-int ttf_printb(int x, int y, char* s, uint16_t color) {
+int ttf_print_bold(int x, int y, char* s, uint16_t color) {
 
     int x_start = x;
 
     while (*s) {
 
-        ttf_printc(x, y, *s, color); x++;
-        x += ttf_printc(x, y, *s, color);
+        ttf_print_char(x, y, *s, color); x++;
+        x += ttf_print_char(x, y, *s, color);
         s++;
     }
 
     return x;
+}
+
+// Позиционирование по пикселям
+void locate(int x, int y) {
+
+    vg.loc_x = x;
+    vg.loc_y = y;
+}
+
+// Цвета
+void color(int fr, int bg) {
+
+    vg.fr = fr;
+    vg.bg = bg;
+}
+
+// Пропечать символа
+void print_char(char ch) {
+
+    for (int i = 0; i < 16; i++) {
+
+        int mask = dos866[ch][i];
+        for (int j = 0; j < 8; j++) {
+
+            if (mask & (1 << (7 - j)))
+                pset(vg.loc_x + j, vg.loc_y + i, vg.fr);
+            else if (vg.bg >= 0)
+                pset(vg.loc_x + j, vg.loc_y + i, vg.bg);
+        }
+    }
+
+    vg.loc_x += 8;
 }
