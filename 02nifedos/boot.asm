@@ -1,5 +1,9 @@
 
         macro   brk { xchg bx, bx }
+        ; 111h 640x480
+        ; 114h 800x600
+        ; 117h 1024x768
+        VMODE   equ 111h
         org     7c00h
 
         jmp     near start
@@ -105,13 +109,13 @@ next:   push    ax
 
         ; Get Video Mode
         mov     ax, 4F01h
-        mov     cx, 0117h
+        mov     cx, VMODE
         mov     di, 0
         int     10h
 
         ; Set Video Mode
         mov     ax, 4F02h
-        mov     bx, 0117h + 0x4000
+        mov     bx, VMODE + 0x4000
         int     10h
 
         ; Включение поддержки A20 (иначе VBox глючит)

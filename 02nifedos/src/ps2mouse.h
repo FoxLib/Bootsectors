@@ -13,7 +13,6 @@ struct PS2Handler {
     int     time_at;                // Время последнего клика
     int     mouse_state;            // Статус нажатых кнопок мыши
     int     x, y, cmd;
-    int     width, height;
 };
 
 struct PS2Handler ps2;

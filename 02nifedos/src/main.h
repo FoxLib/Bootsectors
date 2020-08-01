@@ -1,6 +1,9 @@
 // Инициализация устройств
 void startup() {
 
+    // Инициализировать видеоадаптер
+    vg_init();
+
     // Простановка IRQ
     irq_init(IRQ_KEYB | IRQ_FDC | IRQ_CASCADE | IRQ_PS2MOUSE);
 
@@ -12,9 +15,6 @@ void startup() {
 
     // Обнаружить мышь
     ps2_init_mouse();
-
-    // Инициализировать видеоадаптер
-    vg_init();
 
     // Включить прерывания
     sti;

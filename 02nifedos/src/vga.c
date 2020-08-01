@@ -5,6 +5,9 @@
 // Инициализировать значениями
 void vg_init() {
 
+    vg.width  = 640;
+    vg.height = 480;
+
     locate(0, 0);
     color(CL_WHITE, -1);
 }
@@ -24,20 +27,20 @@ uint16_t C(uint32_t cl) {
 void pset(int x, int y, uint16_t cl) {
 
     unsigned short* vm = (unsigned short*) 0xE0000000;
-    if (x >= 0 && x < 1024 && y >= 0 && y < 768)
-        vm[y*1024 + x] = cl;
+    if (x >= 0 && x < vg.width && y >= 0 && y < vg.height)
+        vm[y*vg.width + x] = cl;
 }
 
 // Нарисовать блок
 void block(int x1, int y1, int x2, int y2, uint16_t cl) {
 
-    if (x1 > 1024 || y1 > 768 || x2 < 0 || y2 < 0)
+    if (x1 >= vg.width || y1 >= vg.height || x2 < 0 || y2 < 0)
         return;
 
     if (x1 < 0) x1 = 0;
     if (y1 < 0) y1 = 0;
-    if (x2 >= 1024) x2 = 1023;
-    if (y2 >= 768) y2 = 767;
+    if (x2 >= vg.width) x2 = vg.width-1;
+    if (y2 >= vg.height) y2 = vg.height-1;
 
     for (int i = y1; i <= y2; i++)
     for (int j = x1; j <= x2; j++)

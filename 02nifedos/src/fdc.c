@@ -267,3 +267,5 @@ void fdc_init() {
 
     fdc_dma_init();
 }
+
+int fdc_ready() { return fdc.irq_ready; }

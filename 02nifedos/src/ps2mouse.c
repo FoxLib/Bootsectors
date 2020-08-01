@@ -23,10 +23,10 @@ void ps2_mouse_handler() {
     ps2.y   -= y;
 
     // Ограничители
-    if (ps2.x >= ps2.width)  ps2.x = ps2.width - 1;
-    if (ps2.y >= ps2.height) ps2.y = ps2.height - 1;
-    if (ps2.x <  0)          ps2.x = 0;
-    if (ps2.y <  0)          ps2.y = 0;
+    if (ps2.x >= vg.width)  ps2.x = vg.width - 1;
+    if (ps2.y >= vg.height) ps2.y = vg.height - 1;
+    if (ps2.x <  0) ps2.x = 0;
+    if (ps2.y <  0) ps2.y = 0;
 
     // Разблокировка клавиатуры
     kb_cmd(0xAE);
@@ -111,6 +111,4 @@ void ps2_init_mouse() {
     ps2.cmd    = 0;
     ps2.x      = 0;
     ps2.y      = 0;
-    ps2.width  = 1024;
-    ps2.height = 768;
 }

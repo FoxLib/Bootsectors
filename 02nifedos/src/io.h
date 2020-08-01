@@ -34,4 +34,10 @@ static inline uint32_t IoRead32(uint16_t port) {
     return data;
 }
 
+static inline uint8_t read(uint32_t addr) {
+
+    volatile uint8_t* vm = (uint8_t*)1;
+    return  vm[addr-1];
+}
+
 

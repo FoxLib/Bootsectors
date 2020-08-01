@@ -1,3 +1,5 @@
+// https://pdos.csail.mit.edu/6.828/2008/readings/hardware/vgadoc/VESA.TXT
+
 #include "stddef.h"
 #include "dos866.h"
 
@@ -5,6 +7,7 @@ enum VGAColors {
 
     CL_BLACK = 0x0000,
     CL_CYAN  = 0x0410,
+    CL_GRAY  = 0xC618,
     CL_WHITE = 0xFFFF,
 };
 
@@ -12,6 +15,7 @@ struct VG_Current_State {
 
     int loc_x, loc_y;   // Позиция
     int fr, bg;         // Цвет
+    int width, height;
 };
 
 struct VG_Current_State vg;

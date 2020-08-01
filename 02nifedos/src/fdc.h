@@ -50,7 +50,7 @@ enum FloppyCommands {
 
 // Информация о FDC
 struct FDC_DEVICE {
-    
+
     // Параметры
     byte    enabled;            // Устройство присутствует
     byte    motor;              // Мотор включен
@@ -103,3 +103,4 @@ void fdc_read(int lba);
 void fdc_write(int lba);
 void fdc_irq();
 void fdc_init();
+int  fdc_ready();
