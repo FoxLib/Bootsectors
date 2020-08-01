@@ -17,7 +17,7 @@ void IRQ_slave();       // 8-F
 // ---------------------------------------------------------------------
 
 struct __attribute__((__packed__)) IDT_Item {
-    
+
     uint16_t low_addr;
     uint16_t selector;
     uint16_t attr;

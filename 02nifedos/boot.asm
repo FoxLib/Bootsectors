@@ -114,6 +114,16 @@ next:   push    ax
         mov     bx, 0117h + 0x4000
         int     10h
 
+        ; Включение поддержки A20 (иначе VBox глючит)
+        mov     ax, 2402h               ;--- A20-Gate Status ---
+        int     15h
+        cmp     al, 1
+        jz      a20_activated           ; A20 is already activated
+        mov     ax,2401h                ;--- A20-Gate Activate ---
+        int     15h
+
+a20_activated:
+
         lgdt    [GDTR]
         lidt    [IDTR]
 

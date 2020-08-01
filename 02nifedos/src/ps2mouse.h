@@ -25,6 +25,6 @@ void kb_wait(int rw);
 void kb_wait_not();
 void kb_cmd(int comm);
 void kb_write(int data);
-int kb_read();
+int  kb_read();
 void ps2_mouse_handler();
 void ps2_init_mouse();

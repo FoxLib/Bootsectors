@@ -12,10 +12,11 @@
 [GLOBAL IRQ_slave]
 [GLOBAL IRQ_keyboard]
 [GLOBAL IRQ_ps2]
+[GLOBAL enable_A20]
 
 _start:
 
-        jmp		main
+        jmp     main
 
 INT_null:
 
