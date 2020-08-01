@@ -1,3 +1,14 @@
+#include "io.h"
+#include "ata.h"
+#include "fdc.h"
+#include "pic.h"
+#include "ps2mouse.h"
+#include "vga.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "fs.h"
+#include "gui.h"
+
 // Инициализация устройств
 void startup() {
 

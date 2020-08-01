@@ -2,6 +2,7 @@
 
 #include "stddef.h"
 #include "dos866.h"
+#include "tahoma.h"
 
 enum VGAColors {
 
@@ -25,6 +26,7 @@ uint16_t rgb(int r, int g, int b);
 uint16_t C(uint32_t cl);
 
 void vg_init();
+void cls(uint16_t cl);
 void pset(int x, int y, uint16_t cl);
 void block(int x1, int y1, int x2, int y2, uint16_t color);
 void line(int x1, int y1, int x2, int y2, uint16_t color);

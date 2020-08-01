@@ -1,6 +1,5 @@
 #include "io.h"
 #include "vga.h"
-#include "tahoma.h"
 
 // Инициализировать значениями
 void vg_init() {
@@ -45,6 +44,10 @@ void block(int x1, int y1, int x2, int y2, uint16_t cl) {
     for (int i = y1; i <= y2; i++)
     for (int j = x1; j <= x2; j++)
         pset(j, i, cl);
+}
+
+void cls(uint16_t cl) {
+    block(0, 0, vg.width, vg.height, cl);
 }
 
 /** Рисование линии по алгоритму Брезенхема
@@ -161,7 +164,7 @@ int ttf_print_char(int x, int y, uint8_t chr, uint16_t color) {
         font_y    = font_tahoma_positions[ cp+1 ],
         font_size = font_tahoma_positions[ cp+2 ];
 
-    for (i = font_y; i < font_y + 12; i++) {
+    for (i = font_y; i < font_y + 11; i++) {
 
         int xp = x;
         for (j = font_x; j < font_x + font_size; j++) {
