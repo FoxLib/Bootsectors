@@ -1,6 +1,9 @@
 #include "vga.h"
 #include "gui.h"
 
+void gui_init() {
+}
+
 // Отрисовать окно
 void gui_draw_window(char* name, int x, int y, int w, int h) {
 

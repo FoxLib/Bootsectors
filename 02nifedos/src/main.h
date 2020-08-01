@@ -12,21 +12,16 @@
 // Инициализация устройств
 void startup() {
 
-    // Инициализировать видеоадаптер
-    vg_init();
+    vg_init(); // Инициализировать видеоадаптер
 
     // Простановка IRQ
     irq_init(IRQ_KEYB | IRQ_FDC | IRQ_CASCADE | IRQ_PS2MOUSE);
 
-    // Найти ATA
-    init_ata_devices();
+    init_ata_devices();     // Найти ATA
+    fdc_init();             // Инициализировать FDD
+    ps2_init_mouse();       // Обнаружить мышь
+    gui_init();             // gui.c
+    stdlib_init();          // stdlib.c
 
-    // Инициализировать FDD
-    fdc_init();
-
-    // Обнаружить мышь
-    ps2_init_mouse();
-
-    // Включить прерывания
-    sti;
+    sti; // Включить прерывания
 }
