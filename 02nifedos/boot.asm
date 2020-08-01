@@ -100,9 +100,18 @@ next:   push    ax
 
 ; ----------------------------------------------------------------------
 ; Init protected
+; https://pdos.csail.mit.edu/6.828/2008/readings/hardware/vgadoc/VESA.TXT
 ; ----------------------------------------------------------------------
 
-        mov     ax, 0012h           ; text 80x25; vga 640x480
+        ; Get Video Mode
+        mov     ax, 4F01h
+        mov     cx, 0117h
+        mov     di, 0
+        int     10h
+
+        ; Set Video Mode
+        mov     ax, 4F02h
+        mov     bx, 0117h + 0x4000
         int     10h
 
         lgdt    [GDTR]

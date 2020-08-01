@@ -1,6 +1,10 @@
 #ifndef __STDDEF
 #define __STDDEF
 
+#define brk asm volatile("xchg %bx, %bx")
+#define cli asm volatile("cli")
+#define sti asm volatile("sti")
+
 // ---------------------------------------------------------------------
 // http://ru.cppreference.com/w/cpp/language/types
 // ---------------------------------------------------------------------

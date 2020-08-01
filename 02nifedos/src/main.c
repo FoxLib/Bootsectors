@@ -1,4 +1,4 @@
-#include "main.h"
+#include "io.h"
 #include "ata.h"
 #include "fdc.h"
 #include "pic.h"
@@ -9,14 +9,17 @@ void main() {
 
     irq_init(IRQ_KEYB | IRQ_FDC | IRQ_CASCADE | IRQ_PS2MOUSE);
 
-    init_vg();
     init_ata_devices();
     fdc_init();
     ps2_init_mouse();
 
-    vg_block(0,0,639,479,3);
-    vg_ttf_print(8,8,"Hello World!",15);
+    block(0,0,1023,767, rgb(0,128,128));
+    ttf_print(8,8,"Hello World!", CL_WHITE);
 
     sti;
-	for(;;);
+    for(;;) {
+
+        pset(ps2.x, ps2.y, CL_WHITE);
+
+    }
 }

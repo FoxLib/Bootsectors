@@ -4,9 +4,10 @@ DEPS=nasm.o fdc.o ata.o ps2mouse.o vga.o pic.o main.o
 
 all: $(DEPS)
 	ld -m elf_i386 -nostdlib -nodefaultlibs --oformat binary -Ttext=0x8000 -Tdata=0x100000 $(DEPS) -o ../disk/core.bin
+	cd .. && bochs -f a.bxrc -q > /dev/null 2>&1
 nasm.o: main.asm
 	nasm -felf32 -o nasm.o main.asm
-main.o: main.h ata.h pic.h main.c
+main.o: main.c main.h io.h ata.h pic.h
 	$(CC) $(COPT) -c main.c -o main.o
 pic.o: pic.c io.h pic.h main.asm
 	$(CC) $(COPT) -c pic.c -o pic.o
