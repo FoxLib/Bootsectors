@@ -4,8 +4,10 @@
 // Инициализировать значениями
 void vg_init() {
 
-    vg.width  = 640;
-    vg.height = 480;
+    vg.width     = 640;
+    vg.height    = 480;
+    vg.font_id   = FONT_TREBUCHETMS_14;
+    vg.font_bold = 0;
 
     locate(0, 0);
     color(CL_WHITE, -1);
@@ -154,63 +156,59 @@ void circle_fill(int xc, int yc, int radius, uint16_t color) {
     }
 }
 
-// Пропечатка шрифта, возвращается размер пропечатанной строки
-int ttf_print_char(int x, int y, uint8_t chr, uint16_t color) {
+// Печать символа TTF
+int font_draw_symbol(char s) {
 
-    int i, j;
+    unsigned char ch = (unsigned char) s;
+    int x = vg.loc_x,
+        y = vg.loc_y,
+        w = 0;
 
-    int cp = 3 * chr;
-    int font_x    = font_tahoma_positions[ cp ],
-        font_y    = font_tahoma_positions[ cp+1 ],
-        font_size = font_tahoma_positions[ cp+2 ];
+    if (vg.font_id == FONT_TREBUCHETMS_14) {
 
-    for (i = font_y; i < font_y + 11; i++) {
+        ch -= 32;
 
-        int xp = x;
-        for (j = font_x; j < font_x + font_size; j++) {
+        // Позиция и ширина буквы
+        int st = map_trebuchetms14[ch][0] + 256*map_trebuchetms14[ch][1];
+            w  = map_trebuchetms14[ch][2];
 
-            if (font_tahoma[ i*15 + (j >> 3) ] & (1 << (7 - (j & 7))))
-                pset(x, y, color);
+        for (int i = 0; i < 14; i++) {
 
-            x++;
+            for (int j = 0; j < w; j++) {
+
+                int ct = st + j;
+                int bm = font_trebuchetms14[ct>>3][i] & (1 << (ct&7));
+
+                if (bm) {
+
+                    pset(x + j, y + i, vg.fr);
+                    if (vg.font_bold) pset(x + j + 1, y + i, vg.fr);
+                }
+                else if (vg.bg >= 0) {
+
+                    pset(x + j, y + i, vg.bg);
+                    if (vg.font_bold) pset(x + j + 1, y + i, vg.bg);
+                }
+            }
         }
 
-        x = xp;
-        y++;
+        vg.loc_x += (1 + w + vg.font_bold);
     }
 
-    return font_size;
+    return w;
 }
 
-// Печать строки (обычной, не BOLD)
-// @return последняя позиция
-int ttf_print(int x, int y, char* s, uint16_t color) {
+// Пропечатка символов
+int font_print(char* s) {
 
-    int x_start = x;
+    int n = 0;
+    while (s[n]) {
 
-    while (*s) {
-
-        x += ttf_print_char(x, y, *s, color);
-        s++;
+        font_draw_symbol(s[n]);
+        n++;
     }
 
-    return x;
-}
-
-// Печать строки BOLD
-// @return последняя позиция
-int ttf_print_bold(int x, int y, char* s, uint16_t color) {
-
-    int x_start = x;
-
-    while (*s) {
-
-        ttf_print_char(x, y, *s, color); x++;
-        x += ttf_print_char(x, y, *s, color);
-        s++;
-    }
-
-    return x;
+    return n;
 }
 
 // Позиционирование по пикселям
@@ -221,11 +219,12 @@ void locate(int x, int y) {
 }
 
 // Цвета
-void color(int fr, int bg) {
+void color(int fr, int bg) { vg.fr = fr; vg.bg = bg; }
+void colorfr(int fr) { vg.fr = fr; }
+void colorbg(int bg) { vg.bg = bg; }
 
-    vg.fr = fr;
-    vg.bg = bg;
-}
+// Начертание
+void bold(int v) { vg.font_bold = v ? 1 : 0; }
 
 // Пропечать символа
 void print_char(char ch) {

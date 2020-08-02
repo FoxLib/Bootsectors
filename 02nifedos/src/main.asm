@@ -16,6 +16,7 @@
 
 _start:
 
+        mov     esp, 0x00400000
         jmp     main
 
 INT_null:
