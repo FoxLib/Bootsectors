@@ -1,5 +1,6 @@
 #include "io.h"
 #include "vga.h"
+#include "stdlib.h"
 
 // Инициализировать значениями
 void vg_init() {
@@ -8,6 +9,9 @@ void vg_init() {
     vg.height    = 480;
     vg.font_id   = FONT_TREBUCHETMS_14;
     vg.font_bold = 0;
+    vg.db        = (word*) malloc(2 * vg.width * vg.height);
+    vg.mx        = vg.width >> 1;
+    vg.my        = vg.height >> 1;
 
     locate(0, 0);
     color(CL_WHITE, -1);
@@ -28,8 +32,34 @@ uint16_t C(uint32_t cl) {
 void pset(int x, int y, uint16_t cl) {
 
     unsigned short* vm = (unsigned short*) 0xE0000000;
-    if (x >= 0 && x < vg.width && y >= 0 && y < vg.height)
-        vm[y*vg.width + x] = cl;
+
+    if (x >= 0 && x < vg.width && y >= 0 && y < vg.height) {
+
+        uint32_t idx = x + y*vg.width;
+
+        vg.db[idx] = cl;
+
+        // Отобразить мышь, если нужно
+        if (vg.mx <= x && vg.my <= y && x < vg.mx + 11 && y < vg.my + 19) {
+
+            byte mpoint = mouse_cursor[y - vg.my][x - vg.mx];
+
+            if (mpoint == 1) cl = CL_BLACK;
+            if (mpoint == 2) cl = CL_WHITE;
+        }
+
+        vm[idx] = cl;
+    }
+}
+
+// Получение цвета точки
+uint16_t point(int x, int y) {
+
+    if (x >= 0 && x < vg.width && y >= 0 && y < vg.height) {
+        return vg.db[x + y*vg.width];
+    }
+
+    return 0;
 }
 
 // Нарисовать блок
@@ -40,7 +70,7 @@ void block(int x1, int y1, int x2, int y2, uint16_t cl) {
 
     if (x1 < 0) x1 = 0;
     if (y1 < 0) y1 = 0;
-    if (x2 >= vg.width) x2 = vg.width-1;
+    if (x2 >= vg.width)  x2 = vg.width-1;
     if (y2 >= vg.height) y2 = vg.height-1;
 
     for (int i = y1; i <= y2; i++)

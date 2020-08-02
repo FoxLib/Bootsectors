@@ -12,6 +12,6 @@ struct MallocItem {
 // Выделенные области
 struct MallocItem malloc_items[1024];
 
-void  stdlib_init();
-byte* malloc(int n);
-void  free(byte* a);
+void stdlib_init();
+uint32_t malloc(int n);
+void free(byte* a);

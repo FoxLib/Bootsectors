@@ -13,6 +13,7 @@ struct PS2Handler {
     int     time_at;                // Время последнего клика
     int     mouse_state;            // Статус нажатых кнопок мыши
     int     x, y, cmd;
+    int     px, py, pcmd;           // Прежние статусы
 };
 
 struct PS2Handler ps2;
@@ -26,3 +27,4 @@ void kb_write(int data);
 int  kb_read();
 void ps2_mouse_handler();
 void ps2_init_mouse();
+void handle_mouse_action();

@@ -2,6 +2,7 @@
 
 #include "stddef.h"
 #include "fonts.h"
+#include "cursor.h"
 
 #include "dos866.h"
 #include "tahoma.h"
@@ -20,6 +21,8 @@ struct VG_Current_State {
     int fr, bg;         // Цвет
     int width, height;
     int font_id, font_bold;
+    int mx, my;
+    word* db;
 };
 
 struct VG_Current_State vg;
@@ -31,6 +34,7 @@ uint16_t C(uint32_t cl);
 void vg_init();
 void cls(uint16_t cl);
 void pset(int x, int y, uint16_t cl);
+uint16_t point(int x, int y);
 void block(int x1, int y1, int x2, int y2, uint16_t color);
 void line(int x1, int y1, int x2, int y2, uint16_t color);
 void lineb(int x1, int y1, int x2, int y2, uint16_t color);

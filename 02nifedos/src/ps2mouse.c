@@ -108,7 +108,39 @@ void ps2_init_mouse() {
     ps2.time_at     = 0;
     ps2.mouse_state = 0;
 
-    ps2.cmd    = 0;
-    ps2.x      = 0;
-    ps2.y      = 0;
+    ps2.cmd = 0;
+    ps2.x   = vg.width >> 1;
+    ps2.y   = vg.width >> 1;
+
+    ps2.pcmd = ps2.cmd;
+    ps2.px   = ps2.x;
+    ps2.py   = ps2.x;
+}
+
+// Отслеживание движения мыши в бесконечном цикле проверки
+void handle_mouse_action() {
+
+    // Прочесть значения мыши
+    cli; volatile int mx = ps2.x, my = ps2.y, cmd = ps2.cmd; sti;
+
+    // Передвинуть мышь на другое место
+    if (mx != ps2.px || my != ps2.py) {
+
+        int vgpx = vg.mx, vgpy = vg.my;
+
+        vg.mx = mx;
+        vg.my = my;
+
+        // Перерисовка новой позиции мыши
+        for (int i = 0; i < 19; i++)
+        for (int j = 0; j < 11; j++) {
+            pset(vgpx + j, vgpy + i, point(vgpx + j, vgpy + i));
+            pset(  mx + j,   my + i, point(  mx + j,   my + i));
+        }
+    }
+
+    ps2.pcmd = cmd;
+    ps2.px = mx;
+    ps2.py = my;
+
 }

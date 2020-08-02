@@ -29,9 +29,9 @@ void stdlib_init() {
 }
 
 // Выделение блока памяти (тупо пока что так)
-byte* malloc(int n) {
+uint32_t malloc(int n) {
 
-    byte* np = (byte*) malloc_cursor;
+    uint32_t np = malloc_cursor;
 
     // Занесение в словарь
     malloc_items[malloc_count].address = malloc_cursor;
