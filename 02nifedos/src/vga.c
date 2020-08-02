@@ -186,16 +186,49 @@ void circle_fill(int xc, int yc, int radius, uint16_t color) {
     }
 }
 
-// Печать символа TTF
-int font_draw_symbol(char s) {
+// Позиционирование по пикселям
+void locate(int x, int y) {
 
-    unsigned char ch = (unsigned char) s;
-    int x = vg.loc_x,
-        y = vg.loc_y,
-        w = 0;
+    vg.loc_x = x;
+    vg.loc_y = y;
+}
 
-    if (vg.font_id == FONT_TREBUCHETMS_14) {
+// Цвета
+void color(int fr, int bg) { vg.fr = fr; vg.bg = bg; }
+void colorfr(int fr) { vg.fr = fr; }
+void colorbg(int bg) { vg.bg = bg; }
 
+// Начертание
+void bold(int v) { vg.font_bold = v ? 1 : 0; }
+void font(int v) { vg.font_id   = v ? 1 : 0; }
+
+// Пропечать символа
+int print_char(unsigned char ch) {
+
+    int w = 8;
+
+    // Моношрифт
+    if (vg.font_id == FONT_FIXEDSYS) {
+
+        w = 8;
+        for (int i = 0; i < 16; i++) {
+
+            int mask = dos866[ch][i];
+            for (int j = 0; j < 8; j++) {
+
+                if (mask & (1 << (7 - j)))
+                    pset(vg.loc_x + j, vg.loc_y + i, vg.fr);
+                else if (vg.bg >= 0)
+                    pset(vg.loc_x + j, vg.loc_y + i, vg.bg);
+            }
+        }
+
+        vg.loc_x += 8;
+    }
+    // "TTF" Threbuchet MS 14
+    else if (vg.font_id == FONT_TREBUCHETMS_14) {
+
+        int x = vg.loc_x, y = vg.loc_y;
         ch -= 32;
 
         // Позиция и ширина буквы
@@ -223,53 +256,8 @@ int font_draw_symbol(char s) {
         }
 
         vg.loc_x += (1 + w + vg.font_bold);
+
     }
 
     return w;
-}
-
-// Пропечатка символов
-int font_print(char* s) {
-
-    int n = 0;
-    while (s[n]) {
-
-        font_draw_symbol(s[n]);
-        n++;
-    }
-
-    return n;
-}
-
-// Позиционирование по пикселям
-void locate(int x, int y) {
-
-    vg.loc_x = x;
-    vg.loc_y = y;
-}
-
-// Цвета
-void color(int fr, int bg) { vg.fr = fr; vg.bg = bg; }
-void colorfr(int fr) { vg.fr = fr; }
-void colorbg(int bg) { vg.bg = bg; }
-
-// Начертание
-void bold(int v) { vg.font_bold = v ? 1 : 0; }
-
-// Пропечать символа
-void print_char(char ch) {
-
-    for (int i = 0; i < 16; i++) {
-
-        int mask = dos866[ch][i];
-        for (int j = 0; j < 8; j++) {
-
-            if (mask & (1 << (7 - j)))
-                pset(vg.loc_x + j, vg.loc_y + i, vg.fr);
-            else if (vg.bg >= 0)
-                pset(vg.loc_x + j, vg.loc_y + i, vg.bg);
-        }
-    }
-
-    vg.loc_x += 8;
 }

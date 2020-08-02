@@ -3,10 +3,11 @@
         ; 111h 640x480
         ; 114h 800x600
         ; 117h 1024x768
-        VMODE   equ 111h
+        VMODE   equ 0x7C02
         org     7c00h
 
-        jmp     near start
+        jmp     short start
+        db      11h
 
 ; ----------------------------------------------------------------------
 ; BPB: Bios Parameter Block
@@ -33,7 +34,6 @@
 ; ----------------------------------------------------------------------
 
 start:
-
         cli
         cld
         mov     sp, 7c00h
@@ -109,13 +109,15 @@ next:   push    ax
 
         ; Get Video Mode
         mov     ax, 4F01h
-        mov     cx, VMODE
+        mov     ch, 0x01
+        mov     cl, [VMODE]
         mov     di, 0
         int     10h
 
         ; Set Video Mode
         mov     ax, 4F02h
-        mov     bx, VMODE + 0x4000
+        mov     bh, 0x41
+        mov     bl, [VMODE]
         int     10h
 
         ; Включение поддержки A20 (иначе VBox глючит)

@@ -128,10 +128,11 @@ void handle_mouse_action() {
 
         int vgpx = vg.mx, vgpy = vg.my;
 
+        // Установка новой позиции
         vg.mx = mx;
         vg.my = my;
 
-        // Перерисовка новой позиции мыши
+        // Перерисовка мыши
         for (int i = 0; i < 19; i++)
         for (int j = 0; j < 11; j++) {
             pset(vgpx + j, vgpy + i, point(vgpx + j, vgpy + i));
@@ -140,7 +141,6 @@ void handle_mouse_action() {
     }
 
     ps2.pcmd = cmd;
-    ps2.px = mx;
-    ps2.py = my;
-
+    ps2.px   = mx;
+    ps2.py   = my;
 }

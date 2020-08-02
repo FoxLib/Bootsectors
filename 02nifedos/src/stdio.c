@@ -5,8 +5,26 @@
 // Печать строки
 int print(char* s) {
 
-    int n = 0;
-    while (s[n]) { print_char(s[n]); n++;}
+    int i = 0, n = 0;
+    while (s[i]) {
+
+        unsigned char ch = s[i++];
+
+        if (ch == 0xD0) { // Главный набор
+
+            ch = s[i++];
+            ch = (ch == 0x81 ? 0xF0 : ch - 0x10);
+
+        } else if (ch == 0xD1) { // Вторичный набор
+
+            ch = s[i++];
+            ch = (ch == 0x91 ? 0xF1 : ch + (ch < 0xB0 ? 0x60 : 0x10));
+        }
+
+        print_char(ch);
+        n++;
+    }
+
     return n;
 }
 

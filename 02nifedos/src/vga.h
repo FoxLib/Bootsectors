@@ -45,6 +45,5 @@ void color(int fr, int bg);
 void colorfr(int fr);
 void colorbg(int bg);
 void bold(int v);
-void print_char(char ch);
-int  font_draw_symbol(char s);
-int  font_print(char* s);
+void font(int v);
+int  print_char(unsigned char ch);
