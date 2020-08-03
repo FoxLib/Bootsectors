@@ -63,7 +63,7 @@ void gui_draw_window(char* name, int x, int y, int w, int h) {
     locate(x + 6, y +  9); colorfr(CL_WHITE); print(name);
 
     // Управление (типичные кнопки)
-    gui_draw_wctrl_icon(x2 - 24, y + 6, ICON_CLOSE | ICON_PRESS);
+    gui_draw_wctrl_icon(x2 - 24, y + 6, ICON_CLOSE);
     gui_draw_wctrl_icon(x2 - 47, y + 6, ICON_OPEN);
     gui_draw_wctrl_icon(x2 - 70, y + 6, ICON_HIDE);
 
