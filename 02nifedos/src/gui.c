@@ -57,6 +57,7 @@ void gui_draw_window(char* name, int x, int y, int w, int h) {
         }
     }
 
+    // Заголовок
     bold(1);
     font(FONT_TREBUCHETMS_14);
     locate(x + 7, y + 10); colorfr(CL_BLACK); print(name);
@@ -68,9 +69,17 @@ void gui_draw_window(char* name, int x, int y, int w, int h) {
     gui_draw_wctrl_icon(x2 - 70, y + 6, ICON_HIDE);
 
     // Тело окна
-    block(x,  y + 30, x2, y2, C(0xd5d5d5));
-    line (x,  y + 30, x,  y2, 0);
-    line (x,  y2,     x2, y2, 0);
-    line (x2, y + 30, x2, y2, 0);
+    block(x+4, y + 30, x2-4, y2-4, C(0xd5d5d5));
 
+    // Ободок
+    block(x,   y+27, x,   y2, C(0x0019CF)); block(x2,   y+27, x2,   y2, C(0x0019CF));
+    block(x+1, y+30, x+1, y2, C(0x0734DA)); block(x2-1, y+30, x2-1, y2, C(0x0734DA));
+    block(x+2, y+30, x+2, y2, C(0x166AEE)); block(x2-2, y+30, x2-2, y2, C(0x166AEE));
+    block(x+3, y+27, x+3, y2, C(0x0855DD)); block(x2-3, y+27, x2-3, y2, C(0x0855DD));
+
+    // Нижний блок
+    block(x, y2,   x2-3, y2,   C(0x0019CF));
+    block(x+1, y2-1, x2-1, y2-1, C(0x0734DA));
+    block(x+2, y2-2, x2-2, y2-2, C(0x166AEE));
+    block(x+3, y2-3, x2-3, y2-3, C(0x0855DD));
 }
