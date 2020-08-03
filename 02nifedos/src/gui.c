@@ -32,8 +32,6 @@ void gui_draw_window(char* name, int x, int y, int w, int h) {
 
     int x2 = x + w, y2 = y + h;
 
-    lineb(x, y+21, x2, y2, 0);
-
     // Верхняя граница окна
     for (int i = 0; i < 30; i++) {
 
@@ -73,6 +71,9 @@ void gui_draw_window(char* name, int x, int y, int w, int h) {
     gui_draw_wctrl_icon(x2 - 70, y + 6, ICON_HIDE);
 
     // Тело окна
-    block(x, y + 30, x2, y2, C(0xd5d5d5));
+    block(x,  y + 30, x2, y2, C(0xd5d5d5));
+    line (x,  y + 30, x,  y2, 0);
+    line (x,  y2,     x2, y2, 0);
+    line (x2, y + 30, x2, y2, 0);
 
 }
