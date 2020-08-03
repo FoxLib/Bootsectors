@@ -46,17 +46,14 @@ void gui_draw_window(char* name, int x, int y, int w, int h) {
         block(x+m, y+i, x2-m, y+i, C(GUITopGradient[i]));
 
         // Ободок
-        if (m > 0) {
+        uint16_t clb = C(GUITopGradient[0]);
+        pset(x +m, y+i, clb);
+        pset(x2-m, y+i, clb);
 
-            uint16_t clb = C(GUITopGradient[0]);
-            pset(x +m, y+i, clb);
-            pset(x2-m, y+i, clb);
-
-            // Исправленная точчка
-            if (m == 1) {
-                pset(x +4, y+1, clb);
-                pset(x2-4, y+1, clb);
-            }
+        // Исправленная точчка
+        if (m == 1) {
+            pset(x +4, y+1, clb);
+            pset(x2-4, y+1, clb);
         }
     }
 
