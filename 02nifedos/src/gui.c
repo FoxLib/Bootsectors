@@ -8,7 +8,7 @@ void gui_init() {
 void gui_draw_wctrl_icon(int x, int y, int icon_id) {
 
     int sx = (icon_id * 21) % 84;
-    int sy = (icon_id * 21) / 84;
+    int sy = (icon_id * 21) / 84; sy *= 21;
 
     for (int i = 0; i < 21; i++)
     for (int j = 0; j < 21; j++) {
@@ -67,9 +67,10 @@ void gui_draw_window(char* name, int x, int y, int w, int h) {
     locate(x + 7, y + 10); colorfr(CL_BLACK); print(name);
     locate(x + 6, y +  9); colorfr(CL_WHITE); print(name);
 
-    // Управление
-    gui_draw_wctrl_icon(x2 - 24, y + 6, ICON_CLOSE);
+    // Управление (типичные кнопки)
+    gui_draw_wctrl_icon(x2 - 24, y + 6, ICON_CLOSE | ICON_PRESS);
     gui_draw_wctrl_icon(x2 - 47, y + 6, ICON_OPEN);
+    gui_draw_wctrl_icon(x2 - 70, y + 6, ICON_HIDE);
 
     // Тело окна
     block(x, y + 30, x2, y2, C(0xd5d5d5));
