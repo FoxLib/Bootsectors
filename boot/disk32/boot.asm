@@ -1,5 +1,5 @@
 ; ----------------------------------------------------------------------
-; Загружается файл LOADER.BIN (не более 608 кб)
+; Загружается файл LOADER.BIN (не более 636 кб)
 ; ----------------------------------------------------------------------
 
 ; ----------------------------------------------------------------------
@@ -14,20 +14,26 @@ BPB_FAT32sz         equ 24h ; Размер FAT(32) в секторах
 BPB_RootEnt_32      equ 2Ch ; Номер кластера с Root Entries
 ; ----------------------------------------------------------------------
 
-; 7C00h Записан Drive Letter
-
         macro   brk { xchg bx, bx }
-        org     7c00h
-brk
+        org     600h
+
+        ; Установка сегментов и копирование 512 байт
         cli
         cld
         xor     ax, ax
         mov     ds, ax
         mov     es, ax
         mov     ss, ax
-        mov     sp, 7C00h
-        mov     si, 7DBEh               ; Поиск в разделах FAT32
-        mov     [7C00h], dl
+        mov     sp, 1000h
+        mov     si, 7C00h
+        mov     di, 600h
+        mov     cx, 256
+        rep     movsw
+        jmp     0 : boot
+
+        ; Исполнение кода
+boot:   mov     si, 7BEh                ; Поиск в разделах FAT32
+        mov     [600h], dl
         mov     cx, 4
 @@:     cmp     [si + 4], byte 0Bh      ; Искать только FAT32
         je      exec
@@ -36,44 +42,50 @@ brk
 error:  int     18h
 
 ; ----------------------------------------------------------------------
+
+        ; Считывание Bios Parameter Block
 exec:   mov     ebp, [si + 8]
         mov     [DAP + 8], ebp
-        call    Read            
-        movzx   edi, word [7E00h + BPB_ResvdSecCnt]     ; Резервированных секторов        
-        add     edi, ebp                                ; Вычислить старт FAT-таблиц
+        call    Read                                ; Прочитать первый сектор
+
+        ; Вычисление
+        movzx   edi, word [800h + BPB_ResvdSecCnt]  ; Резервированных секторов
+        add     edi, ebp                            ; Вычислить старт FAT-таблиц
         mov     [start_fat], edi
-        mov     eax, [7E00h + BPB_FAT32sz]              ; Начало данных
-@@:     movzx   ebx, byte [7E00h + BPB_NumFATs]
+        mov     eax, [800h + BPB_FAT32sz]           ; Начало данных
+@@:     movzx   ebx, byte [800h + BPB_NumFATs]
         mul     ebx
         add     edi, eax
-        mov     [start_data], edi        
-        mov     al, [7E00h + BPB_SecInCluster]          ; Количество секторов в кластере
-        mov     byte [CLUSTR + 2], al        
-        mov     eax, [7E00h + BPB_RootEnt_32]           ; Стартовый кластер на прочтение каталогов
-GoNext: call    ReadCluster                             ; Чтение очередного кластера RootDir в память
-        shl     cx, 4                                   ; 1 сектор = 16 записей
-        mov     bp, cx
-        mov     di, 8000h
-@@:     mov     si, RunFile
+        mov     [start_data], edi
+        mov     al, [800h + BPB_SecInCluster]       ; Количество секторов в кластере
+        mov     byte [CLUSTR + 2], al
+        mov     eax, [800h + BPB_RootEnt_32]        ; Стартовый кластер на прочтение каталогов
+
+        ; Считывание нового кластера и поиск файла в корневом каталоге
+GoNext: call    ReadCluster         ; Чтение очередного кластера RootDir в память
+        shl     cx, 4               ; 1 сектор = 16 записей
+        mov     bp, cx              ; Просматривать N блоков в кластере
+        mov     di, 0x1000
+@@:     mov     si, RunFile         ; Имя запускного файла
         mov     cx, 12
         push    di
-        rep     cmpsb
+        rep     cmpsb               ; Сравнить 11 байт
         pop     di
         jcxz    found
-        add     di, 20h
+        add     di, 20h             ; Если не подошел, к следующей записи
         dec     bp
-        jne     @b        
+        jne     @b
         call    NextCluster
-        cmp     eax, 0x0FFFFFF0
+        cmp     eax, 0x0FFFFFF0     ; Конец файла
         jb      GoNext
         int     18h
 
 ; ----------------------------------------------------------------------
-; Загрузка данных в память
 
+        ; Загрузка данных в память
 found:  mov     ax, [di + 14h]          ; Первый кластер
         shl     eax, 16
-        mov     ax, [di + 1Ah]        
+        mov     ax, [di + 1Ah]
 @@:     call    ReadCluster             ; Начать цикл скачивания программы в память
         shl     cx, 5
         add     [CLUSTR + 6], cx        ; Сместить на ClusterSize * 512 байт
@@ -81,15 +93,14 @@ found:  mov     ax, [di + 14h]          ; Первый кластер
         cmp     eax, 0x0FFFFFF0
         jb      @b
 
+; ---------------------------------------------------------------------
+; Инициализация загрузки ядра именно отсюда
+; ---------------------------------------------------------------------
 
-; ---------------------------------------------------------------------
-; Инициализация загрузки kernel именно отсюда
-; ---------------------------------------------------------------------
-        
-        mov     ax, 0012h   
+        mov     ax, 0012h
         int     10h         ; Переход в графический режим из бутсектора
         lgdt    [GDTR]      ; Загрузка регистра GDT/IDT
-        lidt    [IDTR]        
+        lidt    [IDTR]
         mov     eax, cr0    ; Вход в Protected Mode
         or      al, 1
         mov     cr0, eax
@@ -100,7 +111,7 @@ found:  mov     ax, [di + 14h]          ; Первый кластер
 
 Read:   mov     ah, 42h
         mov     si, DAP
-        mov     dl, [7C00h]
+        mov     dl, [600h]
         int     13h
         jb      error
         ret
@@ -118,7 +129,7 @@ ReadCluster:
         mov     [CLUSTR + 8], eax
         mov     ah, 42h
         mov     si, CLUSTR
-        mov     dl, [7C00h]
+        mov     dl, [600h]
         int     13h
         pop     eax
         jb      error
@@ -138,7 +149,7 @@ NextCluster:
         pop     di
         and     di, 0x7F
         shl     di, 2
-        mov     eax, [di + 7E00h]
+        mov     eax, [di + 800h]
         ret
 
 ; ----------------------------------------------------------------------
@@ -148,12 +159,12 @@ RunFile db 'MAIN    BIN'
 DAP:    dw 0010h  ; 0 | размер DAP = 16
         dw 0001h  ; 2 | 1 сектор
         dw 0000h  ; 4 | смещение
-        dw 07E0h  ; 6 | сегмент
+        dw 0080h  ; 6 | сегмент
         dq 0      ; 8 | номер сектора [0..n - 1]
 CLUSTR: dw 0010h  ; 0 | размер DAP = 16
         dw 0001h  ; 2 | 1 сектор
         dw 0000h  ; 4 | смещение
-        dw 0800h  ; 6 | сегмент
+        dw 0100h  ; 6 | сегмент
         dq 0      ; 8 | номер сектора [0..n - 1]
 
 ; ----------------------------------------------------------------------
@@ -170,7 +181,7 @@ GDT:    dw 0,      0,    0,     0   ; 00 NULL-дескриптор
 
 ; ----------------------------------------------------------------------
 ; Установка сегментов
-; ----------------------------------------------------------------------        
+; ----------------------------------------------------------------------
 pm:     mov     ax, 8
         mov     ds, ax
         mov     es, ax
@@ -178,8 +189,8 @@ pm:     mov     ax, 8
         mov     fs, ax
         mov     gs, ax
 
-        ; Переход в ОС
-        jmp     0010h : 8000h
+        ; Переход в ОС по загруженному адресу
+        jmp     0010h : 1000h
 
 ; ----------------------------------------------------------------------
 start_fat   dd ?
