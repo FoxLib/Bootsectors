@@ -1,0 +1,5 @@
+/boot.bin
+/*.img
+/*.o
+/*.ini
+disk/

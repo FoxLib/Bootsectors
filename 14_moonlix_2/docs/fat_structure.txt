@@ -1,0 +1,48 @@
+FAT16/32 BPB
+
+ http://www.win.tue.nl/~aeb/linux/fs/fat/fat-1.html
+
+ Sector   BPB     Length       Description
+ ---------------------------------------------
+ 0x000    JMP
+ 0x003    VOLUME LABEL 
+ 0x00B    0x00    WORD         Байт на логический сектор
+ 0x00D    0x02    BYTE     >>> Секторов (л.байт) на кластер
+ 0x00E    0x03    WORD     >>> Зарезервированных секторов (включая boot-сектор, начало FAT)
+ 0x010    0x05    BYTE     >>> Количество FAT
+ 0x011    0x06    WORD         Количество записей в корне (=0 для FAT32)
+ 0x013    0x08    WORD         Количество логических секторов
+ 0x015    0x0A    BYTE         Media descriptor
+ 0x016    0x0B    WORD         Секторов на FAT
+ 0x018    0x0D    WORD         Physical sectors per track (identical to DOS 3.0 BPB)
+ 0x01A    0x0F    WORD         Number of heads (identical to DOS 3.0 BPB)
+ 0x01C    0x11    DWORD        Hidden sectors (incompatible with DOS 3.0 BPB)
+ 0x020    0x15    DWORD        Общее количество секторов 
+
+ ; FAT32 DOS 7.1 EBPB
+ 0x024    0x19    DWORD    >>> Секторов на FAT
+ 0x028    0x1D    WORD         Mirroring flags etc.
+ 0x02A    0x1F    WORD         Version
+ 0x02C    0x21    DWORD    >>> Кластер ROOT-директории
+ 0x030    0x25    WORD         Location of FS Information Sector
+ 0x032    0x27    WORD         Location of backup sector(s)
+ 0x034    0x29    12 BYTEs     Reserved (Boot file name)
+ 0x040    0x35    BYTE         Physical drive number
+ 0x041    0x36    BYTE         Flags etc.
+ 0x042    0x37    BYTE         Extended boot signature (0x28)
+ 0x043    0x38    DWORD        Volume serial number
+ 0x052    0x47    8 BYTEs      File-system type (FAT32)
+
+; 1.5 FSInfo sector
+
+FAT32 stores extra information in the FSInfo sector, usually sector 1.
+
+Bytes   Content
+-----------------
+0-3     0x41615252 - the FSInfo signature
+4-483   Reserved
+484-487 0x61417272 - a second FSInfo signature
+488-491 Free cluster count or 0xffffffff (may be incorrect)
+492-495 Next free cluster or 0xffffffff (hint only)
+496-507 Reserved
+508-511 0xaa550000 - sector signature

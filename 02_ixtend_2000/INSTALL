@@ -1,0 +1,25 @@
+--------------------------------------------
+        ПРОЦЕСС УСТАНОВКИ
+--------------------------------------------
+
+A. Сначала создать диск и конфигурационный файл
+
+    1. Зайти в bochs и подключить диск disk.img к ATA-0. Сохранить в c.bxrc
+
+    2. Прописать в c.bxrc файле
+        display_library: x, options="gui_debug"
+
+    3. Запуск
+        bochs -f c.bxrc -q
+
+B. Разметка виртуального диска
+
+    см. описание по ссылке http://neurofox.ru/mod/os/prepare_files_boch
+
+C. Подмонтировать
+
+    sudo mount disk.img -t vfat -o loop,rw,uid="--ВАШ ЛОГИН--",sync,offset=$[1048576] disk/
+
+    --- или ---
+
+    py mountdisk.py

@@ -1,0 +1,1 @@
+fasm autoload.asm

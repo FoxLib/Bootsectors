@@ -1,0 +1,22 @@
+# Информация
+
+Минимальная сборка кодов для запуска полноразмерного ядра.
+
+# Компиляция
+gcc -c -masm=intel -m32 -fno-asynchronous-unwind-tables bootstrap.c -S
+
+   -c (только компиляция)
+   -masm=intel (intel-стиль)
+   -m32 (32-х разрядная модель)
+   -fno-asynchronous-unwind-tables (отключить .cfi в дампе)
+   -S (вывести дамп в файл)
+
+
+# Встроенный ассемблер
+
+    char a;
+    asm("mov al, %0" : : "m" (a));    --->    mov al, byte ptr [ebp - X]
+    asm("mov byte [es:ebx], al");
+
+# Дескриптор
+http://sasm.narod.ru/docs/pm/pm_in/chap_4.htm

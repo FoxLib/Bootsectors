@@ -1,0 +1,3 @@
+const_mc:
+
+	.sz1 db 0xC9, 0xCD, " Nu Chto, Nisstyak? ", 0xCD, 0xBB, 0

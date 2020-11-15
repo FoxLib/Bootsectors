@@ -1,0 +1,10 @@
+[alias]
+
+    st = status
+    ci = commit
+    br = branch
+    co = checkout
+    mr = merge
+    re = remote
+    lol = log --graph --decorate --pretty=oneline --abbrev=commit
+    ls = ls-files

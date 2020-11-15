@@ -1,0 +1,8 @@
+modules
+
+    alloc.asm выделение памяти
+
+        malloc
+        calloc
+        realloc
+        free

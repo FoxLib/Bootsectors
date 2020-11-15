@@ -1,0 +1,6 @@
+disk
+disk.img
+initrd.img
+mount.sh
+bx_enh_dbg.ini
+initrd/cleandisk

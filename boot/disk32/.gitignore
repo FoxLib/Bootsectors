@@ -1,0 +1,4 @@
+boot.bin
+disk.img
+*.ini
+disk/
